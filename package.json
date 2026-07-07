@@ -1,1 +1,20 @@
-{"name": "slippage-sentinel", "version": "1.0.0", "type": "module", "dependencies": {"hono": "^4.12", "zod": "^3.25", "@hono/node-server": "^1.13"}, "scripts": {"start": "node server.js"}}
+{
+  "name": "slippage-sentinel",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch server.ts",
+    "start": "node server.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.0",
+    "hono": "^4.6.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,7 @@
+const {Hono}=require('hono');const app=new Hono();
+const POOLS={uniswap:{ETH_USDC:{depth:450000000,tvl:890000000,recentTrades:[500,1200,800,3000,1500]},WBTC_ETH:{depth:280000000,tvl:560000000,recentTrades:[100,250,180,400,300]},SOL_USDC:{depth:150000000,tvl:310000000,recentTrades:[2000,5000,3500,8000,4500]}}};
+app.get('/health',c=>c.json({status:'ok',agent:'slippage-sentinel'}));
+app.post('/estimate-slippage',async c=>{try{const b=await c.req.json();const inT=b.token_in||'ETH';const outT=b.token_out||'USDC';const amt=b.amount_in||1000;const pool=POOLS.uniswap[`${inT}_${outT}`]||POOLS.uniswap['ETH_USDC'];
+if(!pool)return c.json({error:'No pool data'},404);const depth=pool.depth;const impactPct=Math.min((amt/depth)*100,50);const safeSlip=Math.max(Math.round(impactPct*100)/100,0.05);const p95=pool.recentTrades.sort((a,b)=>a-b)[Math.floor(pool.recentTrades.length*0.95)];
+return c.json({min_safe_slip_bps:Math.round(safeSlip*100),pool_depths:{[`${inT}_${outT}`]:{depth,impact_1pct:depth*0.01,impact_5pct:depth*0.05}},recent_trade_size_p95:p95,confidence:safeSlip<0.5?'high':safeSlip<2?'medium':'low',timestamp:new Date().toISOString()})}catch(e){return c.json({error:e.message},400)}});
+module.exports=app;
